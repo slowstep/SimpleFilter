@@ -205,7 +205,7 @@ var SimpleFilter = {
 }
 
 exports.main = function (options, callbacks) {
-  SimplePrefs.prefs['description'] = Locales('Simple Proxy');
+  SimplePrefs.prefs['description'] = Locales('Simple Filter');
   Preferences.pending();
 };
 
