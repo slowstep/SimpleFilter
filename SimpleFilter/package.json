@@ -1,0 +1,108 @@
+{
+  "id": "simplefilter@jc3213.github",
+  "title": "Simple Filter",
+  "name": "simplefilter",
+  "version": "1.0.0",
+  "description": "Simple, and Handiness",
+  "main": "content/main.js",
+  "author": "jc3213",
+  "engines": {
+    "firefox": ">=41.0a1"
+  },
+  "permissions": {
+    "private-browsing": true,
+    "multiprocess": true
+  },
+  "homepage": "https://github.com/jc3213/SimpleFilter",
+  "updateURL": "https://raw.githubusercontent.com/jc3213/Misc/master/Update/SimpleFilter.rdf",
+  "updateLink": "https://github.com/jc3213/SimpleFilter/releases/download/1.0.0/simplefilter-1.0.0-fx.xpi",
+  "updateKey": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDFsJMzTMTZJsIQp2vatSpsLhjA/V42k2L68aUhbFkiCuqwC6lLd/Q16jkEWgR3l9M10gfckWUAaxVvOi9vBioleumyDXdi/v+vgcCfiXbJfzjaQ9DLGE10517g+vacQknzWecV2LUWAtOe/uqz1TPwh85jJU1lMBfeVkvt4XL9yQIDAQAB",
+  "license": "LGPL 3.0",
+  "preferences": [
+    {
+      "name": "filter_list_0",
+      "type": "file",
+      "title": "Filter Rulelist ⑴"
+    },
+    {
+      "name": "filter_list_0",
+      "type": "string",
+      "title": "Filter Rulelist ⑴",
+      "value": ""
+    },
+    {
+      "name": "edit_list_0",
+      "type": "control",
+      "title": "  ",
+      "label": "Edit Rulelist ⑴"
+    },
+    {
+      "name": "filter_list_1",
+      "type": "file",
+      "title": "Filter Rulelist ⑵"
+    },
+    {
+      "name": "filter_list_1",
+      "type": "string",
+      "title": "Filter Rulelist ⑵",
+      "value": ""
+    },
+    {
+      "name": "edit_list_1",
+      "type": "control",
+      "title": "  ",
+      "label": "Edit Rulelist ⑵"
+    },
+    {
+      "name": "filter_list_2",
+      "type": "file",
+      "title": "Filter Rulelist ⑶"
+    },
+    {
+      "name": "filter_list_2",
+      "type": "string",
+      "title": "Filter Rulelist ⑶",
+      "value": ""
+    },
+    {
+      "name": "edit_list_2",
+      "type": "control",
+      "title": "  ",
+      "label": "Edit Rulelist ⑶"
+    },
+    {
+      "name": "filter_list_3",
+      "type": "file",
+      "title": "Filter Rulelist ⑷"
+    },
+    {
+      "name": "filter_list_3",
+      "type": "string",
+      "title": "Filter Rulelist ⑷",
+      "value": ""
+    },
+    {
+      "name": "edit_list_3",
+      "type": "control",
+      "title": "  ",
+      "label": "Edit Rulelist ⑷"
+    },
+    {
+      "name": "filter_list_4",
+      "type": "file",
+      "title": "Filter Rulelist ⑸"
+    },
+    {
+      "name": "filter_list_4",
+      "type": "string",
+      "title": "Filter Rulelist ⑸",
+      "value": ""
+    },
+    {
+      "name": "edit_list_4",
+      "type": "control",
+      "title": "  ",
+      "label": "Edit Rulelist ⑸"
+    }
+  ]
+}
