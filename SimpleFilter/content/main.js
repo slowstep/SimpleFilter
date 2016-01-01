@@ -29,7 +29,6 @@ var Preferences = {
 
       this.onClick(i);
     }
-
     SimplePrefs.on('', function (name) {
       var number = name.split('_')[2];
       Preferences.manifest(name, Profiles[number]);
@@ -115,10 +114,8 @@ var Execution = {
         }
 
         for (var i in list) {
-          if (list[i].startsWith('#')) {
-            continue;
-          } else {
-            Execution.normalize(list[i]);
+          if (list[i].startsWith('$') || list[i].startsWith('^')) {
+            Execution.normalize(list[i].substr(1));
           }
         }
       },
@@ -131,10 +128,7 @@ var Execution = {
   },
   normalize: function (rule) {
     if (rule.includes('@')) {
-      var string = rule.split('@')[0];
       var attribute = rule.split('@')[1];
-
-      var pattern = new MatchPattern(string);
       if (attribute.includes('|')) {
         var filter = new Array();
         for (var i in attribute.split('|')) {
@@ -142,11 +136,9 @@ var Execution = {
         }
 	  }
 
-      SimpleFilter.worker(pattern, filter);
+      SimpleFilter.worker(string, filter);
 	} else {
-      var pattern = new MatchPattern(rule);
-
-      SimpleFilter.worker(pattern);
+      SimpleFilter.worker(rule);
     }
   },
   editor: function (profile) {
@@ -188,9 +180,21 @@ var Execution = {
 };
 
 var SimpleFilter = {
-  worker: function (pattern, filter) {
+  worker: function (rule, filter) {
     if (!filter) var filter = ['main_frame', 'sub_frame', 'stylesheet', 'script', 'image', 'object', 'xmlhttprequest'];
+    if (rule.includes('>')) {
+      var string = rule.split('>')[0];
+      var target = rule.split('>')[1];
+      var pattern = new MatchPattern(string);
 
+      this.redirect(pattern, target, filter);
+	} else {
+      var pattern = new MatchPattern(rule);
+
+      this.filter(pattern, filter);
+	}
+  },
+  filter: function (pattern, filter) {
     WebRequest.onBeforeRequest.addListener(
       function (event) {
         return {cancel: true};
@@ -201,8 +205,20 @@ var SimpleFilter = {
       },
       ['blocking']
     );
+  },
+  redirect: function (pattern, target, filter) {
+    WebRequest.onBeforeSendHeaders.addListener(
+      function (event) {
+        return {redirectUrl: target};
+      },
+      {
+        urls: pattern,
+        types: filter
+      },
+      ['blocking']
+    );
   }
-}
+};
 
 exports.main = function (options, callbacks) {
   SimplePrefs.prefs['description'] = Locales('Simple Filter');
