@@ -134,10 +134,10 @@ var Execution = {
         for (var i in attribute.split('|')) {
           filter.push(attribute.split('|')[i]);
         }
-	  }
+      }
 
       SimpleFilter.worker(string, filter);
-	} else {
+    } else {
       SimpleFilter.worker(rule);
     }
   },
@@ -188,11 +188,11 @@ var SimpleFilter = {
       var pattern = new MatchPattern(string);
 
       this.redirect(pattern, target, filter);
-	} else {
+    } else {
       var pattern = new MatchPattern(rule);
 
       this.filter(pattern, filter);
-	}
+    }
   },
   filter: function (pattern, filter) {
     WebRequest.onBeforeRequest.addListener(
