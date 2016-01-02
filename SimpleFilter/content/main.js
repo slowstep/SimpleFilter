@@ -20,7 +20,6 @@ var Directories = {
 };
 
 var Profiles = new Object();
-var SimpleList = { filter: new Array(), redirect: new Array() };
 
 var Preferences = {
   pending: function () {
@@ -112,6 +111,8 @@ var Execution = {
       function onSuccess(array) {
         var decoder = new TextDecoder();
         var data = decoder.decode(array);
+        profile.filter = new Array();
+        profile.redirect = new Array();
 
         try {
           var list = ChromeWindow.atob(data).split(/[\r\n]+/);
@@ -121,9 +122,9 @@ var Execution = {
 
         for (var i in list) {
           if (list[i].startsWith('$')) {
-            Execution.normalize(SimpleList.filter, list[i].substr(1));
+            Execution.normalize(profile.filter, list[i].substr(1));
           } if (list[i].startsWith('^')) {
-            Execution.normalize(SimpleList.redirect, list[i].substr(1));
+            Execution.normalize(profile.redirect, list[i].substr(1));
           }
         }
       },
@@ -209,24 +210,28 @@ var SimpleFilter = {
     }
   },
   filter: function (event) {
-    for (var i in SimpleList.filter) {
-      var pattern = SimpleList.filter[i][0];
-      var filter = SimpleList.filter[i][1];
-      var url = Services.io.newURI(event.url, null, null);
-      var type = event.type;
+    for (var i in Profiles) {
+      for (var x in Profiles[i].filter) {
+        var pattern = Profiles[i].filter[x][0];
+        var filter = Profiles[i].filter[x][1];
+        var url = Services.io.newURI(event.url, null, null);
+        var type = event.type;
 
-      if (SimpleFilter.matcher(pattern, filter, url, type)) return {cancel: true};
+        if (SimpleFilter.matcher(pattern, filter, url, type)) return {cancel: true};
+      }
     }
   },
   redirect: function (event) {
-    for (var i in SimpleList.redirect) {
-      var pattern = SimpleList.redirect[i][0];
-      var filter = SimpleList.redirect[i][1];
-      var target = SimpleList.redirect[i][2];
-      var url = Services.io.newURI(event.url, null, null);
-      var type = event.type;
+    for (var i in Profiles) {
+      for (var x in Profiles[i].redirect) {
+        var pattern = Profiles[i].redirect[x][0];
+        var filter = Profiles[i].redirect[x][1];
+        var target = Profiles[i].redirect[x][2];
+        var url = Services.io.newURI(event.url, null, null);
+        var type = event.type;
 
-      if (SimpleFilter.matcher(pattern, filter, url, type)) return {redirectUrl: target};
+        if (SimpleFilter.matcher(pattern, filter, url, type)) return {redirectUrl: target};
+      }
     }
   }
 };
