@@ -2,7 +2,7 @@
   "id": "simplefilter@jc3213.github",
   "title": "Simple Filter",
   "name": "simplefilter",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Simple, and Handiness",
   "main": "content/main.js",
   "author": "jc3213",
@@ -15,7 +15,7 @@
   },
   "homepage": "https://github.com/jc3213/SimpleFilter",
   "updateURL": "https://raw.githubusercontent.com/jc3213/Misc/master/Update/SimpleFilter.rdf",
-  "updateLink": "https://github.com/jc3213/SimpleFilter/releases/download/1.1.1/simplefilter-1.1.1-fx.xpi",
+  "updateLink": "https://github.com/jc3213/SimpleFilter/releases/download/1.2.0/simplefilter-1.2.0-fx.xpi",
   "updateKey": "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDFsJMzTMTZJsIQp2vatSpsLhjA/V42k2L68aUhbFkiCuqwC6lLd/Q16jkEWgR3l9M10gfckWUAaxVvOi9vBioleumyDXdi/v+vgcCfiXbJfzjaQ9DLGE10517g+vacQknzWecV2LUWAtOe/uqz1TPwh85jJU1lMBfeVkvt4XL9yQIDAQAB",
   "license": "LGPL 3.0",
   "preferences": [
