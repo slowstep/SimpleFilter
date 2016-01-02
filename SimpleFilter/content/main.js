@@ -10,9 +10,9 @@ var {WebRequest} = Cu.import('resource://gre/modules/WebRequest.jsm', {});
 var {MatchPattern} = Cu.import('resource://gre/modules/MatchPattern.jsm');
 
 var Directories = {
-  profile: OS.Path.join(OS.Constants.Path.profileDir, 'SimpleProxy'),
-  firefox: OS.Path.join(OS.Constants.Path.libDir, 'browser', 'SimpleProxy'),
-  winuser: OS.Path.join(OS.Constants.Path.homeDir, 'SimpleProxy'),
+  profile: OS.Path.join(OS.Constants.Path.profileDir, 'SimpleFilter'),
+  firefox: OS.Path.join(OS.Constants.Path.libDir, 'browser', 'SimpleFilter'),
+  winuser: OS.Path.join(OS.Constants.Path.homeDir, 'SimpleFilter'),
   addFolder: function () {
     OS.File.makeDir(this.profile);
   }
