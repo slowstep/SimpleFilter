@@ -6,6 +6,7 @@ var Locales = require('sdk/l10n').get;
 var {Cc, Ci, Cu} = require('chrome');
 var {Downloads} = Cu.import('resource://gre/modules/Downloads.jsm', {});
 var {TextDecoder, TextEncoder, OS} = Cu.import('resource://gre/modules/osfile.jsm', {});
+var {Services} = Cu.import('resource://gre/modules/Services.jsm', {});
 var {WebRequest} = Cu.import('resource://gre/modules/WebRequest.jsm', {});
 var {MatchPattern} = Cu.import('resource://gre/modules/MatchPattern.jsm');
 
@@ -19,6 +20,7 @@ var Directories = {
 };
 
 var Profiles = new Object();
+var SimpleList = { filter: new Array(), redirect: new Array() };
 
 var Preferences = {
   pending: function () {
@@ -29,10 +31,14 @@ var Preferences = {
 
       this.onClick(i);
     }
+
     SimplePrefs.on('', function (name) {
       var number = name.split('_')[2];
       Preferences.manifest(name, Profiles[number]);
     });
+
+    SimpleFilter.filter();
+    SimpleFilter.redirect();
   },
   onClick: function (number) {
     SimplePrefs.on('edit_list_' + number, function () {
@@ -114,8 +120,10 @@ var Execution = {
         }
 
         for (var i in list) {
-          if (list[i].startsWith('$') || list[i].startsWith('^')) {
-            Execution.normalize(list[i].substr(1));
+          if (list[i].startsWith('$')) {
+            Execution.normalize(SimpleList.filter, list[i].substr(1));
+          } if (list[i].startsWith('^')) {
+            Execution.normalize(SimpleList.redirect, list[i].substr(1));
           }
         }
       },
@@ -126,7 +134,7 @@ var Execution = {
       }
     );
   },
-  normalize: function (rule) {
+  normalize: function (list, rule) {
     if (rule.includes('@')) {
       var attribute = rule.split('@')[1];
       if (attribute.includes('|')) {
@@ -136,9 +144,9 @@ var Execution = {
         }
       }
 
-      SimpleFilter.worker(string, filter);
+      SimpleFilter.worker(list, string, filter);
     } else {
-      SimpleFilter.worker(rule);
+      SimpleFilter.worker(list, rule);
     }
   },
   editor: function (profile) {
@@ -180,50 +188,57 @@ var Execution = {
 };
 
 var SimpleFilter = {
-  worker: function (rule, filter) {
-    if (!filter) var filter = ['main_frame', 'sub_frame', 'stylesheet', 'script', 'image', 'object', 'xmlhttprequest'];
+  worker: function (list, rule, filter) {
     if (rule.includes('>')) {
       var string = rule.split('>')[0];
       var target = rule.split('>')[1];
       var pattern = new MatchPattern(string);
 
-      this.redirect(pattern, target, filter);
+      list.push([pattern, filter, target]);
     } else {
       var pattern = new MatchPattern(rule);
 
-      this.filter(pattern, filter);
+      list.push([pattern, filter]);
     }
   },
-  filter: function (pattern, filter) {
-    WebRequest.onBeforeRequest.addListener(
-      function (event) {
-        return {cancel: true};
-      },
-      {
-        urls: pattern,
-        types: filter
-      },
-      ['blocking']
-    );
+  matcher: function (pattern, filter, url, type) {
+    if (filter) {
+      if (pattern.matches(url) && filter.indexOf(type) > -1) return true;
+    } else {
+      if (pattern.matches(url)) return true;
+    }
   },
-  redirect: function (pattern, target, filter) {
-    WebRequest.onBeforeSendHeaders.addListener(
-      function (event) {
-        return {redirectUrl: target};
-      },
-      {
-        urls: pattern,
-        types: filter
-      },
-      ['blocking']
-    );
+  filter: function (event) {
+    for (var i in SimpleList.filter) {
+      var pattern = SimpleList.filter[i][0];
+      var filter = SimpleList.filter[i][1];
+      var url = Services.io.newURI(event.url, null, null);
+      var type = event.type;
+
+      if (SimpleFilter.matcher(pattern, filter, url, type)) return {cancel: true};
+    }
+  },
+  redirect: function (event) {
+    for (var i in SimpleList.redirect) {
+      var pattern = SimpleList.redirect[i][0];
+      var filter = SimpleList.redirect[i][1];
+      var target = SimpleList.redirect[i][2];
+      var url = Services.io.newURI(event.url, null, null);
+      var type = event.type;
+
+      if (SimpleFilter.matcher(pattern, filter, url, type)) return {redirectUrl: target};
+    }
   }
 };
 
 exports.main = function (options, callbacks) {
   SimplePrefs.prefs['description'] = Locales('Simple Filter');
   Preferences.pending();
+  WebRequest.onBeforeRequest.addListener(SimpleFilter.filter, null, ['blocking']);
+  WebRequest.onBeforeSendHeaders.addListener(SimpleFilter.redirect, null, ['blocking']);
 };
 
 exports.onUnload = function (reason) {
+  WebRequest.onBeforeRequest.removeListener(SimpleFilter.filter);
+  WebRequest.onBeforeSendHeaders.removeListener(SimpleFilter.redirect);
 };
