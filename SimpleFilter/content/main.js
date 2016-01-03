@@ -199,7 +199,12 @@ var SimpleFilter = {
       list.push([pattern, filter]);
     }
   },
-  matcher: function (pattern, filter, url, type) {
+  matcher: function (rule, event) {
+    var pattern = rule[0];
+    var filter = rule[1];
+    var url = BrowserUtils.makeURI(event.url);
+    var type = event.type;
+
     if (filter) {
       if (pattern.matches(url) && filter.indexOf(type) > -1) return true;
     } else {
@@ -215,23 +220,13 @@ var SimpleFilter = {
 
       if (white.length > 0) {
         for (var x in white) {
-          var _pattern = white[x][0];
-          var _filter = white[x][1];
-          var _url = BrowserUtils.makeURI(event.url);
-          var _type = event.type;
-
-          if (SimpleFilter.matcher(_pattern, _filter, _url, _type)) return;
+          if (SimpleFilter.matcher(white[x], event)) return;
         }
       }
 
       if (match.length > 0) {
         for (var y in match) {
-          var pattern = match[y][0];
-          var filter = match[y][1];
-          var url = BrowserUtils.makeURI(event.url);
-          var type = event.type;
-
-          if (SimpleFilter.matcher(pattern, filter, url, type)) return {cancel: true};
+          if (SimpleFilter.matcher(match[y], event)) return {cancel: true};
         }
       }
     }
@@ -245,25 +240,14 @@ var SimpleFilter = {
 
       if (white.length > 0) {
         for (var x in white) {
-          var _pattern = white[x][0];
-          var _filter = white[x][1];
-          var _target = white[x][2];
-          var _url = BrowserUtils.makeURI(event.url);
-          var _type = event.type;
-
-          if (SimpleFilter.matcher(_pattern, _filter, _url, _type)) return;
+          if (SimpleFilter.matcher(white[x], event)) return;
         }
       }
 
       if (match.length > 0) {
         for (var y in match) {
-          var pattern = match[y][0];
-          var filter = match[y][1];
           var target = match[y][2];
-          var url = BrowserUtils.makeURI(event.url);
-          var type = event.type;
-
-          if (SimpleFilter.matcher(pattern, filter, url, type)) return {redirectUrl: target};
+          if (SimpleFilter.matcher(match[y], event)) return {redirectUrl: target};
         }
       }
     }
