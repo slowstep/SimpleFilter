@@ -247,7 +247,7 @@ var SimpleFilter = {
         for (var x in white) {
           var _pattern = white[x][0];
           var _filter = white[x][1];
-          var _target = match[y][2];
+          var _target = white[x][2];
           var _url = Services.io.newURI(event.url, null, null);
           var _type = event.type;
 
