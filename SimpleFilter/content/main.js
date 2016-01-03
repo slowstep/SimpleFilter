@@ -35,9 +35,6 @@ var Preferences = {
       var number = name.split('_')[2];
       Preferences.manifest(name, Profiles[number]);
     });
-
-    SimpleFilter.filter();
-    SimpleFilter.redirect();
   },
   onClick: function (number) {
     SimplePrefs.on('edit_list_' + number, function () {
@@ -98,8 +95,8 @@ var Execution = {
       profile.file = profile.list;
       this.scan(profile);
     } else if (profile.list.match(/^[^\\\?\/\*\|<>:"]+\.[a-z]+@(profile|firefox|winuser)$/i)) {
-      var folder = profile.list.split('@')[1];
       var listname = profile.list.split('@')[0];
+      var folder = profile.list.split('@')[1];
       profile.file = OS.Path.join(Directories[folder], listname);
       this.scan(profile);
     } else {
@@ -111,8 +108,8 @@ var Execution = {
       function onSuccess(array) {
         var decoder = new TextDecoder();
         var data = decoder.decode(array);
-        profile.filter = new Array();
-        profile.redirect = new Array();
+        profile.filter = { white: new Array(), match: new Array() };
+        profile.redirect = { white: new Array(), match: new Array() };
 
         try {
           var list = ChromeWindow.atob(data).split(/[\r\n]+/);
@@ -135,19 +132,19 @@ var Execution = {
       }
     );
   },
-  normalize: function (list, rule) {
-    if (rule.includes('@')) {
-      var attribute = rule.split('@')[1];
-      if (attribute.includes('|')) {
-        var filter = new Array();
-        for (var i in attribute.split('|')) {
-          filter.push(attribute.split('|')[i]);
-        }
-      }
-
-      SimpleFilter.worker(list, string, filter);
+  normalize: function (listgroup, string) {
+    var rule = string.split('@')[0];
+    var attribute = string.split('@')[1];
+    if (attribute) {
+      var filter = attribute.split('|');
     } else {
-      SimpleFilter.worker(list, rule);
+      var filter = null;
+    }
+
+    if (rule.startsWith('!')) {
+      SimpleFilter.worker(listgroup.white, rule.substr(1), filter);
+    } else {
+      SimpleFilter.worker(listgroup.match, rule, filter);
     }
   },
   editor: function (profile) {
@@ -211,26 +208,63 @@ var SimpleFilter = {
   },
   filter: function (event) {
     for (var i in Profiles) {
-      for (var x in Profiles[i].filter) {
-        var pattern = Profiles[i].filter[x][0];
-        var filter = Profiles[i].filter[x][1];
-        var url = Services.io.newURI(event.url, null, null);
-        var type = event.type;
+      if (!Profiles[i].filter) return;
 
-        if (SimpleFilter.matcher(pattern, filter, url, type)) return {cancel: true};
+      var white = Profiles[i].filter.white;
+      var match = Profiles[i].filter.match;
+
+      if (white.length > 0) {
+        for (var x in white) {
+          var _pattern = white[x][0];
+          var _filter = white[x][1];
+          var _url = Services.io.newURI(event.url, null, null);
+          var _type = event.type;
+
+          if (SimpleFilter.matcher(_pattern, _filter, _url, _type)) return;
+        }
+      }
+
+      if (match.length > 0) {
+        for (var y in match) {
+          var pattern = match[y][0];
+          var filter = match[y][1];
+          var url = Services.io.newURI(event.url, null, null);
+          var type = event.type;
+
+          if (SimpleFilter.matcher(pattern, filter, url, type)) return {cancel: true};
+        }
       }
     }
   },
   redirect: function (event) {
     for (var i in Profiles) {
-      for (var x in Profiles[i].redirect) {
-        var pattern = Profiles[i].redirect[x][0];
-        var filter = Profiles[i].redirect[x][1];
-        var target = Profiles[i].redirect[x][2];
-        var url = Services.io.newURI(event.url, null, null);
-        var type = event.type;
+      if (!Profiles[i].redirect) return;
 
-        if (SimpleFilter.matcher(pattern, filter, url, type)) return {redirectUrl: target};
+      var white = Profiles[i].redirect.white;
+      var match = Profiles[i].redirect.match;
+
+      if (white.length > 0) {
+        for (var x in white) {
+          var _pattern = white[x][0];
+          var _filter = white[x][1];
+          var _target = match[y][2];
+          var _url = Services.io.newURI(event.url, null, null);
+          var _type = event.type;
+
+          if (SimpleFilter.matcher(_pattern, _filter, _url, _type)) return;
+        }
+      }
+
+      if (match.length > 0) {
+        for (var y in match) {
+          var pattern = match[y][0];
+          var filter = match[y][1];
+          var target = match[y][2];
+          var url = Services.io.newURI(event.url, null, null);
+          var type = event.type;
+
+          if (SimpleFilter.matcher(pattern, filter, url, type)) return {redirectUrl: target};
+        }
       }
     }
   }
