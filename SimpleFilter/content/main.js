@@ -6,9 +6,9 @@ var Locales = require('sdk/l10n').get;
 var {Cc, Ci, Cu} = require('chrome');
 var {Downloads} = Cu.import('resource://gre/modules/Downloads.jsm', {});
 var {TextDecoder, TextEncoder, OS} = Cu.import('resource://gre/modules/osfile.jsm', {});
-var {Services} = Cu.import('resource://gre/modules/Services.jsm', {});
 var {WebRequest} = Cu.import('resource://gre/modules/WebRequest.jsm', {});
 var {MatchPattern} = Cu.import('resource://gre/modules/MatchPattern.jsm');
+var {BrowserUtils} = Cu.import('resource://gre/modules/BrowserUtils.jsm');
 
 var Directories = {
   profile: OS.Path.join(OS.Constants.Path.profileDir, 'SimpleFilter'),
@@ -217,7 +217,7 @@ var SimpleFilter = {
         for (var x in white) {
           var _pattern = white[x][0];
           var _filter = white[x][1];
-          var _url = Services.io.newURI(event.url, null, null);
+          var _url = BrowserUtils.makeURI(event.url);
           var _type = event.type;
 
           if (SimpleFilter.matcher(_pattern, _filter, _url, _type)) return;
@@ -228,7 +228,7 @@ var SimpleFilter = {
         for (var y in match) {
           var pattern = match[y][0];
           var filter = match[y][1];
-          var url = Services.io.newURI(event.url, null, null);
+          var url = BrowserUtils.makeURI(event.url);
           var type = event.type;
 
           if (SimpleFilter.matcher(pattern, filter, url, type)) return {cancel: true};
@@ -248,7 +248,7 @@ var SimpleFilter = {
           var _pattern = white[x][0];
           var _filter = white[x][1];
           var _target = white[x][2];
-          var _url = Services.io.newURI(event.url, null, null);
+          var _url = BrowserUtils.makeURI(event.url);
           var _type = event.type;
 
           if (SimpleFilter.matcher(_pattern, _filter, _url, _type)) return;
@@ -260,7 +260,7 @@ var SimpleFilter = {
           var pattern = match[y][0];
           var filter = match[y][1];
           var target = match[y][2];
-          var url = Services.io.newURI(event.url, null, null);
+          var url = BrowserUtils.makeURI(event.url);
           var type = event.type;
 
           if (SimpleFilter.matcher(pattern, filter, url, type)) return {redirectUrl: target};
